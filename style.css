@@ -12,10 +12,16 @@ h2{font-size:21px;line-height:1.3;margin:1.7em 0 .4em}
 p{margin:0 0 1em}
 .lede{font-size:20px}
 a{color:var(--accent)}
-.posts{list-style:none;padding:0;margin:28px 0}
+.intro{margin-top:32px}
+.project-links{font:15px/1.65 system-ui,-apple-system,sans-serif}
+.posts{list-style:none;padding:0;margin:12px 0 28px}
 .posts li{padding:14px 0;border-bottom:1px solid var(--rule)}
+.posts h3{font-size:21px;font-weight:normal;line-height:1.35;margin:.25em 0 .5em}
 .posts a{font-size:21px;text-decoration:none}
+.posts a:hover{text-decoration:underline}
+.posts li>p:last-child{font-size:16px;margin-bottom:0}
 .posts .date{margin:0}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 footer{margin-top:40px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--rule);font:13px system-ui,-apple-system,sans-serif;color:var(--muted)}
 
 pre{overflow-x:auto;padding:12px;border:1px solid var(--rule);font-size:14px}
@@ -25,3 +31,54 @@ caption{text-align:left;font-weight:bold;margin-bottom:.6em}
 th,td{text-align:left;vertical-align:top;padding:8px;border-bottom:1px solid var(--rule)}
 code{overflow-wrap:anywhere}
 pre code{overflow-wrap:normal}
+
+/* Article figures use native HTML so labels remain selectable and wrap on phones. */
+figure{margin:30px 0}
+figcaption{font:13px/1.55 system-ui,-apple-system,sans-serif;color:var(--muted);margin-top:12px}
+.scene img{display:block;width:100%;height:auto;border:1px solid var(--rule)}
+.home-scene{margin-bottom:36px}
+.eyebrow{font:600 11px/1.5 system-ui,-apple-system,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
+.takeaways{border-left:3px solid var(--accent);padding:18px 20px;margin:28px 0;background:var(--panel)}
+.takeaways .eyebrow{margin-bottom:10px}
+.takeaways ul{padding-left:18px;margin:0;font-size:16px;line-height:1.55}
+.takeaways li+li{margin-top:9px}
+.article-nav{display:flex;flex-wrap:wrap;gap:8px 16px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0;font:13px/1.5 system-ui,-apple-system,sans-serif}
+.article-nav>span{color:var(--muted)}
+h2[id]{scroll-margin-top:20px}
+.diagram{border:1px solid var(--rule);padding:22px;background:var(--panel)}
+.flow{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;font:13px/1.5 system-ui,-apple-system,sans-serif}
+.flow li{position:relative}
+.flow li+li:before{content:'→';position:absolute;left:-19px;top:30px;color:var(--accent)}
+.flow strong,.flow span{display:block}
+.flow strong{font-size:15px;line-height:1.35;margin:7px 0}
+.step-label{font-size:11px;color:var(--muted)}
+.budget-bar{display:flex;height:32px;border:1px solid var(--muted);gap:3px}
+.budget-runtime{width:56.25%;background:var(--accent)}
+.budget-other{width:25.625%;background:var(--secondary)}
+.budget-room{width:18.125%;background:var(--rule)}
+.budget-key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0;list-style:none;font:12px/1.5 system-ui,-apple-system,sans-serif;margin:16px 0 0}
+.budget-key strong,.budget-key li>span:last-child{display:block}
+.budget-key strong{font-size:17px;margin-top:5px}
+.swatch{display:block;width:18px;height:5px}
+.runtime{background:var(--accent)}
+.other{background:var(--secondary)}
+.room{background:var(--rule)}
+.chart-context{font:12px/1.5 system-ui,-apple-system,sans-serif;color:var(--muted);margin-top:-9px}
+.hitch-chart{font:13px/1.5 system-ui,-apple-system,sans-serif}
+.hitch-row{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:16px 0}
+.bar-track{grid-column:1/-1;height:13px;background:var(--rule)}
+.bar-track span{display:block;height:100%;background:var(--accent)}
+.hitch-result{border-top:1px solid var(--rule);padding-top:14px;margin-top:20px}
+.hitch-result strong,.hitch-result span{display:block}
+.hitch-result span{margin-top:4px}
+:root{--panel:#f0eadf;--secondary:#80735f}
+@media(prefers-color-scheme:dark){:root{--panel:#24211c;--secondary:#b4aa91}}
+@media(max-width:480px){
+ .diagram{padding:18px}
+ .flow{grid-template-columns:1fr;gap:30px}
+ .flow li+li:before{content:'↓';left:0;top:-25px}
+ .budget-key{gap:8px}
+ .budget-key strong{font-size:15px}
+}
+
+.screenshot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}

@@ -6,20 +6,39 @@
 <title>Transect is out—and you can use the assets</title>
 <meta name="description" content="A browser walk through a procedural valley, and an asset catalog for other game developers.">
 <link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://fellandfjordstudios.github.io/blog/posts/transect-announcement.html">
+<link rel="alternate" type="application/rss+xml" title="Notes from the valley" href="../feed.xml">
+<meta property="og:site_name" content="Notes from the valley">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Transect is out—and you can use the assets">
+<meta property="og:description" content="A browser walk through a procedural valley, and an asset catalog for other game developers.">
+<meta property="og:url" content="https://fellandfjordstudios.github.io/blog/posts/transect-announcement.html">
 </head>
 <body>
 <header><a class="site" href="../">optilyr · notes from the valley</a></header>
 <main>
 <article>
-<p class="date">11 October 2026</p>
+<p class="date"><time datetime="2026-10-11">11 October 2026</time></p>
 <h1>Transect is out—and you can use the assets</h1>
 <p class="lede">Transect is out. It’s a first-person walk through a procedural valley that you can play in your browser. Follow the trail, try the weather controls, or stay out until dark and see how the place looks.</p>
+<figure class="scene screenshot-pair">
+<div class="screenshot-grid">
+<img src="../assets/valley-day.jpg" width="590" height="1280" alt="Daylight in Transect: a white animal stands on a grassy hillside, with touch controls visible.">
+<img src="../assets/camp-evening.jpg" width="590" height="1280" alt="A tent and a pile of wood beneath trees in the warm evening light, with touch controls visible.">
+</div>
+<figcaption>Out in the valley. Back at camp.</figcaption>
+</figure>
+<p class="project-links"><a href="https://fellandfjordstudios.github.io/transect-release/">Take a walk in Transect</a> · <a href="https://asset-explorer.pages.dev/">Explore the assets</a></p>
 <p>I’ll keep working on it. I’ve also put together an asset catalog where other developers can browse, preview, and download assets for their own games.</p>
 <p>Both came from wanting to make good graphical assets and actually use them in a game. Looking at a model on its own only told me so much. I wanted to know how it would look across a hillside, with a lot of other things around it, running on my phone.</p>
 <h2>Why a valley?</h2>
 <p>A model can look pretty good when you’ve picked the camera angle and lighting for it. I needed to check what happened when I didn’t have that control. Could I still make out its shape from a distance? Did it look odd when I used it twenty times? And could the device handle a whole landscape of these things?</p>
 <p>A trail through a valley gave me a useful way to test that. I could walk past the same assets at different distances, change the time of day, and try different weather. Some problems only showed up once the light changed. Others showed up when I added enough assets to slow things down.</p>
 <p>As I worked on the landscape, I added touch controls, weather, and sound. Eventually I liked walking around in it enough to want to share it.</p>
+<figure class="scene">
+<img src="../assets/camp-night.jpg" width="1280" height="590" loading="lazy" alt="A pool of light falls on a tent and a pile of wood in an otherwise dark campsite. The game’s touch controls remain visible.">
+<figcaption>Camp after dark.</figcaption>
+</figure>
 <h2>Trying it on my phone</h2>
 <p>The browser was a convenient way to check the work. I could open a link on my phone and try the latest build without installing anything.</p>
 <p>The preview tooling had a 64 MB artifact limit. That wasn’t a download target I’d researched; it was just the limit I had to work with. Still, it was useful to have a reason to watch the size. Smaller builds download faster, and I had to think about what each addition would cost.</p>
@@ -28,11 +47,15 @@
 <p>I’ve written about those experiments in <a href="loading-a-procedural-world.html">Loading a procedural world in Godot on the web</a>, including a cave hitch that threads didn’t fix.</p>
 <h2>Using the assets</h2>
 <p>The <a href="https://asset-explorer.pages.dev/">asset catalog</a> has previews, specifications, and available downloads so you can see whether something will be useful in your own project. Available free builds use CC BY 4.0, with attribution information included in the download. The generators are private; the resulting assets are available under their stated licences.</p>
+<figure class="scene shore-scene">
+<img src="../images/norge-skiff-at-the-shore.webp" width="2000" height="1055" loading="lazy" alt="A skiff floats beside a sandy shore in Norge, beneath a grassy hillside and a bright blue sky.">
+<figcaption>The same asset library in Norge: a skiff at the shore.</figcaption>
+</figure>
 <p>You’ll still want to try them with your own lighting and on your target hardware. Something that works in my valley might need adjustments in your scene. But you can download what’s available and try it without having to build the tools that made it.</p>
 <p>I’ll use this blog to write about new assets, changes to Transect, and the engineering work as I go. For now, you can take a walk and have a look through the catalog.</p>
 <p><a href="https://fellandfjordstudios.github.io/transect-release/">Play Transect</a> · <a href="https://asset-explorer.pages.dev/">Browse the asset catalog</a></p>
 </article>
 </main>
-<footer><a href="../">All posts</a></footer>
+<footer><a href="../">All posts</a> · <a href="../feed.xml">Subscribe via RSS</a></footer>
 </body>
 </html>

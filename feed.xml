@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<title>Notes from the valley</title>
+<link>https://fellandfjordstudios.github.io/blog/</link>
+<description>Notes on making Transect, a walk through a valley in your browser.</description>
+<language>en</language>
+<atom:link href="https://fellandfjordstudios.github.io/blog/feed.xml" rel="self" type="application/rss+xml"/>
+<item>
+<title>Transect is out—and you can use the assets</title>
+<link>https://fellandfjordstudios.github.io/blog/posts/transect-announcement.html</link>
+<guid isPermaLink="true">https://fellandfjordstudios.github.io/blog/posts/transect-announcement.html</guid>
+<description>A browser walk through a procedural valley, and an asset catalog for other game developers.</description>
+</item>
+<item>
+<title>Loading a procedural world in Godot on the web</title>
+<link>https://fellandfjordstudios.github.io/blog/posts/loading-a-procedural-world.html</link>
+<guid isPermaLink="true">https://fellandfjordstudios.github.io/blog/posts/loading-a-procedural-world.html</guid>
+<description>What I tried to reduce loading stalls in Transect, from worker threads to shader experiments and prepared lighting data.</description>
+</item>
+</channel>
+</rss>
