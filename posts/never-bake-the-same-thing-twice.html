@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Never bake the same thing twice</title>
+<meta name="description" content="Keying each bake on what it reads, what that saved in the asset build, and what still needs work in a shared cache.">
+<link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="https://fellandfjordstudios.github.io/blog/posts/never-bake-the-same-thing-twice.html">
+<link rel="alternate" type="application/rss+xml" title="Notes from the valley" href="../feed.xml">
+<meta property="og:site_name" content="Notes from the valley">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Never bake the same thing twice">
+<meta property="og:description" content="Keying each bake on what it reads, what that saved in the asset build, and what still needs work in a shared cache.">
+<meta property="og:url" content="https://fellandfjordstudios.github.io/blog/posts/never-bake-the-same-thing-twice.html">
+</head>
+<body>
+<header><a class="site" href="../">optilyr · notes from the valley</a></header>
+<main>
+<article>
+
+<p class="date"><time datetime="2026-10-31">31 October 2026</time></p>
+<h1>Never bake the same thing twice</h1>
+<p class="lede">Every change to my asset library made the daily build bake everything again. I changed the cache to key each bake on what it actually reads; in a cloud development container, a full catalog rerun went from 2,199 s to 206 s. Those are single-run measurements, with some overlap from other work during the first run, rather than a controlled benchmark.</p>
+<nav class="article-nav" aria-label="In this article"><span>Jump to</span> <a href="#every-commit">Every commit</a> <a href="#two-keys">Choosing a key</a> <a href="#inputs">What the bake reads</a> <a href="#savings">What it saved</a> <a href="#sharing">Sharing the store</a> <a href="#ended-up">Where I ended up</a></nav>
+<h2 id="every-commit">Every commit rebuilt everything</h2>
+<p>A bake is the expensive step that turns an asset’s built shape into the files a game loads: meshes, lighting data, and distant-view images called atlases. Building the shape itself is cheap. Baking and rendering the results is where the time goes.</p>
+<p>My daily build ran on a stateless CI runner. It saved its bake output between runs, but the cache key named the whole asset library’s commit. Any new commit meant a new key. Even changing a comment threw away the saved work and sent every asset through baking and rendering again.</p>
+<p>The bakes had a 45-minute budget. Whatever didn’t finish shipped unbaked. That made the choice of cache key visible in the result: time spent repeating finished work was time unavailable for something that still needed baking.</p>
+<p>On 14 October 2026, I measured the gap between the commit the daily build was pinned to and the library’s main that day. Across 164 commits, none of the catalog’s 167 baked levels of detail had changed in the shape the build actually made. Rebuilding that set would have produced the same thing.</p>
+<p>The commit was useful for identifying the library version. It was much less useful for deciding whether a particular bake needed doing. I needed a key that could tell those questions apart.</p>
+<h2 id="two-keys">Two keys that fail in opposite directions</h2>
+<p>The obvious place to start was the asset’s own recipe. If that hadn’t changed, perhaps its bake could stay. But an asset also depends on shared library code. A key that ignores that code can miss changes which affect the finished shape.</p>
+<p>Across the same 164 commits and 167 LODs, none of the recipe-only keys moved. That result looked reassuring until I considered what the key could see. It would have kept serving the old bakes through all that library work, whether or not the work changed what the bake needed.</p>
+<p>Including the shared code each asset reaches fixed the blindness. It also moved every key. That was safe, but left me with the full rebake I already had.</p>
+<div class="table-scroll" role="region" aria-label="Cache key comparison" tabindex="0">
+<table>
+<caption>Keys that moved across 164 commits, measured on 2026-10-14 for 167 baked LODs</caption>
+<thead><tr><th scope="col">What the key includes</th><th scope="col">Keys moved</th><th scope="col">What that tells me</th></tr></thead>
+<tbody>
+<tr><th scope="row">Asset recipe, without shared library code</th><td>0 of 167</td><td>Blind to library changes; could serve stale bakes</td></tr>
+<tr><th scope="row">Recipe and shared library code it reaches</th><td>167 of 167</td><td>Safe, but rebuilds everything</td></tr>
+<tr><th scope="row">The built shape</th><td>0 of 167</td><td>Correct for this set: the shapes were unchanged</td></tr>
+</tbody>
+</table>
+</div>
+<p>The built-shape key gave the same count as the blind key, but for a reason I could trust: I had built the shapes and compared what came out. The code had changed; the output the bake would read had not.</p>
+<p>That was the useful boundary. The cheap step could absorb changes to the code and tell me whether the expensive step had anything new to do.</p>
+<h2 id="inputs">Key the bake on what it reads</h2>
+<p>I now key the bake on the shape as built, plus whatever reaches the bake without passing through that shape: the material as declared, the baking code itself, quality settings, and the engine version. There is also a version number for the key format.</p>
+<p>That last part lets me change how the key is assembled without confusing old entries with new ones. Changing the baking code moves every key once, as it should. Changing library code only needs to move a shape’s key when it changes the shape the build makes.</p>
+<figure class="diagram">
+<p class="eyebrow">Before doing the expensive work</p>
+<ol class="flow">
+<li><span class="step-label">Build</span><strong>Make the shape</strong><span>The cheap stage produces the shape the bake will read.</span></li>
+<li><span class="step-label">Key</span><strong>Identify the inputs</strong><span>Shape, material, baking code, quality, engine, and key-format version.</span></li>
+<li><span class="step-label">Look up</span><strong>In the store?</strong><span>Yes: copy it. No: bake it, then store it.</span></li>
+</ol>
+<figcaption>The local lookup path. In the cloud development container, building the 167 LODs to compute their bake keys took 61 s; the shape must be built before its key is known.</figcaption>
+</figure>
+<p>There is a price for knowing. Building all 167 LODs just to compute their bake keys took 61 s in the cloud development container. A cache lookup isn’t free when I first have to make the thing I’m identifying. I was happy to spend about a minute finding out what needed baking instead of assuming everything did.</p>
+<p>The local store lives outside any checkout, with each bake stored under its key. I write into a temporary folder and rename it into place when complete, so an interrupted bake leaves no half-written entry. Before reusing an entry, I check every file against its recorded hash.</p>
+<h2 id="savings">What it saved</h2>
+<p>I measured an empty store, then immediately ran the same work again with nothing changed. These were single runs in a cloud development container. They are not daily-runner timings, phone or player timings, averages, or a cache hit rate.</p>
+<figure class="diagram">
+<p class="eyebrow">Empty store, then the same run again</p>
+<p class="chart-context">Seconds · each pair has its own scale</p>
+<div class="hitch-chart">
+<p><strong>Full catalog bake</strong> · scale ends at 2,199 s</p>
+<div class="hitch-row"><span>Empty store</span><strong>2,199 s</strong><div class="bar-track" aria-hidden="true"><span style="width:100%"></span></div></div>
+<div class="hitch-row"><span>Unchanged rerun</span><strong>206 s</strong><div class="bar-track" aria-hidden="true"><span style="width:calc(206 / 2199 * 100%)"></span></div></div>
+<p><strong>Library packaging</strong> · scale ends at 526 s</p>
+<div class="hitch-row"><span>Empty store</span><strong>526 s</strong><div class="bar-track" aria-hidden="true"><span style="width:100%"></span></div></div>
+<div class="hitch-row"><span>Unchanged rerun</span><strong>218 s</strong><div class="bar-track" aria-hidden="true"><span style="width:calc(218 / 526 * 100%)"></span></div></div>
+<p><strong>Atlas tool, one goods sack</strong> · scale ends at 32.6 s</p>
+<div class="hitch-row"><span>Without the store</span><strong>32.6 s</strong><div class="bar-track" aria-hidden="true"><span style="width:100%"></span></div></div>
+<div class="hitch-row"><span>Atlas already stored</span><strong>21.6 s</strong><div class="bar-track" aria-hidden="true"><span style="width:calc(21.6 / 32.6 * 100%)"></span></div></div>
+</div>
+<figcaption>Single runs in a cloud development container: empty store versus an immediate unchanged rerun, with the atlas pair comparing no store against an already-stored atlas. Each pair uses its own scale. These are not daily-runner or player timings. Part of the first full catalog run overlapped other measurement work on one of the machine’s four cores.</figcaption>
+</figure>
+<p>The full catalog run covered 132 assets and 408 LODs, with structural baking and no lighting trace. The rerun read all 408 LODs from the store and wrote a manifest byte for byte identical to the first. Computing the keys took about 150 s of its 206 s.</p>
+<p>The packaging tool covered 167 LODs, also with structural baking. Its unchanged rerun read all 167 from the store; the remaining work was computing keys. I didn’t measure the slower lighting-trace mode, which takes hours on that machine. It reads the same keys.</p>
+<p>The goods sack’s atlas was also byte for byte the same either way. The remaining time went into starting the engine, importing, and building the shape to compute the key.</p>
+<p>Computing the catalog’s 167 bake keys and 103 render keys alone took 3 min 5 s, single-threaded in that container. Once the bakes were cached, most of what remained was working out what I already had.</p>
+<p>The daily build now restores its bake store from the previous run whatever commit it builds. I haven’t measured its runtime, so these container results are the timings I can report.</p>
+<h2 id="sharing">Sharing it between machines</h2>
+<p>A local store helps the machine holding it. The next step is a shared store, written by verified builds and read by everyone, using a Cloudflare Worker in front of R2 storage. Parts of that are now in use, but the transfer work isn’t finished.</p>
+<p>First I had to make a key mean the same bytes across machines. Randomly assigned internal IDs in saved scenes meant that 400 of 400 entries differed under the same keys when baked on different machines. The later writer silently replaced the earlier result.</p>
+<p>The rule now is that a key must produce the same bytes on any machine. The first verified writer wins. If another writer supplies different bytes, the store records a disagreement and keeps the original entry.</p>
+<p>Fetching each result separately was also too expensive. In a tiny HTTP-cache test with one asset and three LODs, fetching took 3.26 s against 2.37 s for baking from scratch. About 2.26 s of the cached run was building shapes to learn their keys. That test wasn’t a reason to add more individual requests.</p>
+<p>Instead, a build publishes a “root”: a list of every key it needs. A client compares that with what it already holds and moves the difference in batches. On Cloudflare’s free tier, my cold-transfer target is at most 2x the time needed to move the same bytes as a single file.</p>
+<p>The first real attempt used batches of 1,000. Each took about 35 s and about 350 ms of Cloudflare CPU; Cloudflare stopped the sixth batch for exceeding the free tier’s CPU allowance. Recording each batch’s ownership in a single D1 database write, instead of a storage object per entry, removed that problem. Sending batches several at a time helped further.</p>
+<div class="table-scroll" role="region" aria-label="Shared store transfer results" tabindex="0">
+<table>
+<caption>Real Cloudflare, free tier, 10,000 entries: transfer time against moving the same bytes as a single file</caption>
+<thead><tr><th scope="col">Transfer</th><th scope="col">Shared store</th><th scope="col">Single file</th><th scope="col">Ratio</th><th scope="col">2x target</th></tr></thead>
+<tbody>
+<tr><th scope="row">Cold upload</th><td>13.7 s</td><td>11.15 s</td><td>1.23x</td><td>Met</td></tr>
+<tr><th scope="row">Cold download transfer</th><td>8.9 s</td><td>6.38 s</td><td>1.39x</td><td>Met</td></tr>
+<tr><th scope="row">Download, 90% already held</th><td>4.3 s</td><td>0.77 s</td><td>5.51x</td><td>Not met</td></tr>
+<tr><th scope="row">Re-upload, nothing changed</th><td>0.7 s</td><td>0.14 s</td><td>4.94x</td><td>Not met</td></tr>
+</tbody>
+</table>
+</div>
+<p>The cold transfers met the target. The small, mostly-held syncs didn’t: a few fixed calls dominate when there is little to move.</p>
+<p>The first reads through the deployed Worker failed altogether, with HTTP 403. Cloudflare’s browser integrity check refused Python urllib’s default User-Agent with error code 1010 before the requests reached the Worker. Naming the client fixed it. During that failure I got no cache hits; I never got wrong bytes.</p>
+<h2 id="ended-up">Where I ended up</h2>
+<p>The local cache is in use, and the library’s build now fetches through the shared Worker on the free tier, with no charge. Getting mostly-held syncs within the transfer target is next.</p>
+<p>The change I would carry to another pipeline is to key the expensive stage on the cheap stage’s output, together with the other inputs it reads. It costs time to build that output. Here, that cost let me keep finished work through library changes that didn’t affect it.</p>
+<p>You can browse the results in the <a href="https://asset-explorer.pages.dev/">asset catalog</a>, or <a href="https://fellandfjordstudios.github.io/transect-release/">play Transect in the browser</a>. I’ll keep working on moving less of the same data around to build them.</p>
+</article>
+</main>
+<footer><a href="../">All posts</a> · <a href="../feed.xml">Subscribe via RSS</a></footer>
+</body>
+</html>

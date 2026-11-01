@@ -7,6 +7,12 @@
 <language>en</language>
 <atom:link href="https://fellandfjordstudios.github.io/blog/feed.xml" rel="self" type="application/rss+xml"/>
 <item>
+<title>Never bake the same thing twice</title>
+<link>https://fellandfjordstudios.github.io/blog/posts/never-bake-the-same-thing-twice.html</link>
+<guid isPermaLink="true">https://fellandfjordstudios.github.io/blog/posts/never-bake-the-same-thing-twice.html</guid>
+<description>Keying each bake on what it reads, what that saved in the asset build, and what still needs work in a shared cache.</description>
+</item>
+<item>
 <title>Transect is out—and you can use the assets</title>
 <link>https://fellandfjordstudios.github.io/blog/posts/transect-announcement.html</link>
 <guid isPermaLink="true">https://fellandfjordstudios.github.io/blog/posts/transect-announcement.html</guid>
